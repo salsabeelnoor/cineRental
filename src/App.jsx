@@ -1,24 +1,34 @@
-import { useState } from "react";
-import MovieList from "./cine/MovieList";
-import { MovieContext } from "./context";
-import Footer from "./footer";
-import Header from "./Header";
-import Sidebar from "./Sidebar";
+import { useReducer, useState } from "react";
+
+import { MovieContext, ThemeContext } from "./context";
+import { Bounce, ToastContainer} from 'react-toastify';
+
+import Page from "./Page";
+import { cartReducer, initialState } from "./reducers/CartReducer";
 
 function App() {
-  const [cartData, setCartData] = useState([]);
+  const [darkMode, setDarkMode] = useState(false);
+  const [state, dispatch] = useReducer(cartReducer, initialState);
   return (
     <>
-      <MovieContext.Provider value={{cartData, setCartData}}>
-        <Header />
-        <main>
-          <div className="container grid lg:grid-cols-[218px_1fr] gap-[3.5rem]">
-            <Sidebar />
-            <MovieList />
-          </div>
-        </main>
-        <Footer />
-      </MovieContext.Provider>
+      <ThemeContext.Provider value={{darkMode, setDarkMode}}>
+        <MovieContext.Provider value={{ state, dispatch }}>
+          <Page />
+          <ToastContainer
+          position="bottom-right"
+          autoClose={5000}
+          hideProgressBar={false}
+          newestOnTop={false}
+          closeOnClick={false}
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+          theme="light"
+          transition={Bounce}
+          />
+        </MovieContext.Provider>
+      </ThemeContext.Provider>
     </>
   );
 }

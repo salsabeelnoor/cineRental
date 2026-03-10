@@ -1,11 +1,14 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { getImageUrl } from "../utils/cine-utility.js";
 import Rating from "./Rating.jsx";
 import MovieDetailsModal from "./MovieDetailsModal.jsx";
+import { MovieContext } from "../context/index.js";
+import { toast } from "react-toastify";
 
 export default function MovieCard({ movie }) {
   const [ShowModal, setShowModal] = useState(false);
   const [selectedMovie, setSelectedMovie] = useState(null);
+  const {state, dispatch} = useContext(MovieContext);
 
   const handleModalClose = () => {
     setSelectedMovie(null);
@@ -19,14 +22,28 @@ export default function MovieCard({ movie }) {
 
   const handleAddToCart = (event, movie) => {
     event.stopPropagation();
-    console.log(movie);
+    const found = state.cartData.find((item) => {
+      return item.id === movie.id
+    });
+    if(!found) {
+      dispatch({
+        type: "ADD_TO_CART",
+        payload: {
+          ...movie,
+        }
+      })
+      toast.success(`${movie.title} added successfully`)
+    }
+    else {
+      toast.error(`The ${movie.title} has already been added to the cart`);
+    }
   }
 
   return (
     <>
       {ShowModal && (
         <div className="dark:bg-body bg-white font-[Sora] dark:text-white text-dark">
-          <MovieDetailsModal movie={selectedMovie} onClose={handleModalClose} />
+          <MovieDetailsModal movie={selectedMovie} onClose={handleModalClose} onCartAdd={handleAddToCart} />
         </div>
       )}
       <figure className="p-4 border border-black/10 shadow-sm dark:border-white/10 rounded-xl">
